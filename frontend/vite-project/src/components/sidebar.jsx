@@ -7,8 +7,7 @@ import { addConversation, setConversations, setSelectedConversation } from '../r
 import { setUserdata } from '../redux/userslice'
 import { createConversation } from '../features/createconversation'
 
-function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false)
+function Sidebar({ collapsed, setCollapsed }) {
   const [imageError, setImageError] = useState(false)
   const dispatch = useDispatch()
   const { conversations = [], selectedConversation } = useSelector((state) => state.conversation)
@@ -36,6 +35,23 @@ function Sidebar() {
   const renderConversationItems = () =>
     conversations.map((conv) => {
       const isActive = selectedConversation?._id === conv?._id
+      
+      if (collapsed) {
+        return (
+          <div
+            key={conv?._id ?? conv?.title ?? Math.random()}
+            onClick={() => dispatch(setSelectedConversation(conv))}
+            className={`flex items-center justify-center cursor-pointer mb-1.5 w-9 h-9 rounded-xl border transition-colors duration-150 ${
+              isActive
+                ? 'bg-indigo-500/10 border-indigo-500/[0.18] text-indigo-400'
+                : 'bg-transparent border-transparent text-slate-500 hover:text-slate-200 hover:bg-white/[0.05]'
+            }`}
+          >
+            <MessagesSquare size={16} />
+          </div>
+        )
+      }
+
       return (
         <div
           key={conv?._id ?? conv?.title ?? Math.random()}
@@ -51,7 +67,7 @@ function Sidebar() {
           >
             <MessagesSquare size={13} />
           </div>
-          <span className={`text-[13px] font-medium truncate ${isActive ? 'text-slate-100' : 'text-slate-300'}`}>
+          <span className={`min-w-0 text-[13px] font-medium truncate ${isActive ? 'text-slate-100' : 'text-slate-300'}`}>
             {conv?.title || 'New Chat'}
           </span>
         </div>
@@ -98,7 +114,7 @@ function Sidebar() {
   }
 
   return (
-    <div className='fixed lg:static inset-y-0 left-0 z-50 w-[270px] h-screen shrink-0 bg-[#0d0f14] border-r border-white/[0.06]'>
+    <div className='flex flex-col w-[270px] h-screen shrink-0 bg-[#0d0f14] border-r border-white/[0.06]'>
       <div className='flex flex-col h-full'>
         <div className='flex items-center gap-2.5 px-4 py-4 border-b border-white/[0.06]'>
           <div

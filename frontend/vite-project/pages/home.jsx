@@ -1,5 +1,5 @@
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
-import React from 'react'
+import React, { useState } from 'react'
 import { auth, googleProvider } from '../utils/firebase.js'
 import api from '../utils/axios'
 import { FcGoogle } from "react-icons/fc"
@@ -13,6 +13,7 @@ function Home() {
 
     const { userData } = useSelector((state) => state.user)
     const dispatch = useDispatch()
+    const [collapsed, setCollapsed] = useState(false)
     // Removed the nested 'function App() {' that was blocking access
 
     const handlelogin = async (token) => {
@@ -40,10 +41,11 @@ function Home() {
     return (
         <div className='h-screen flex bg-black text-amber-50 overflow-hidden'>
 
-            <SideBar />
-            <ChatArea />
-            <Artifact />
-
+            <SideBar collapsed={collapsed} setCollapsed={setCollapsed} />
+            <div className='flex-1 min-w-0 flex overflow-hidden bg-[#090a0f] transition-all duration-150'>
+                <ChatArea />
+                <Artifact />
+            </div>
 
 
             {!userData && <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm'>
