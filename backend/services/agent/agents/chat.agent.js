@@ -2,7 +2,7 @@ import { getModel } from "../config/llmmodel.js"
 
 export const chat =async (state) => {
     const llm=await getModel("chat")
-    const systemprompt="You are CortexAI, an intelligent AI assistant."
+    const prompt="You are CortexAI, an intelligent AI assistant."
     const response= await llm.invoke([
 
         {

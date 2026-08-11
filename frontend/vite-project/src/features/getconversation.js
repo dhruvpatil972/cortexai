@@ -10,3 +10,4 @@ export const getConversations = async () => {
         return []
     }
 }
+

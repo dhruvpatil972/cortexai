@@ -63,7 +63,7 @@ THEN WE WILL KNOW HOW GGOGLE WILL PROVIDE US WITH DATA IN FRONTEND AND FROM THAT
 WE WILL COLLECT SOME SOME TOKEN FROM THEM AND GIVE IT TO LOGIN CONTROLLER
 
 
-in frontend install vite@ latest and also tailwind package,plugin and import 
+in frontend install vite@ latest and also Tailwind CSS packages. The frontend app uses `tailwindcss`, `postcss`, and `autoprefixer` so Tailwind classes render correctly in `frontend/vite-project/package.json`.
 we are going to create button in app.jsx
 now by clicking on this biutton we have authenticated using google
 so we have to add firebase in your frontend
@@ -136,6 +136,8 @@ phir ham redis to gatway se coonect kar denje aur export kar denje then services
 
 ab auth.controller.js mei redis ko use karenge aur sessionid me set karenge
 
+note: gateway bhi redis par depend karta hai. `backend/gateway/middlewares/auth.middleware.js` validates the `session` cookie on every protected request by reading session data from Redis, so Redis must be available for both auth service and gateway session validation.
+
 toh humne kya kiya hau ki agar user login hoga redis ke andar set kar denje aur jab logout karenge toh sessionid delete hogayegi 
 ab frontend ka ui banane wale hai aur button mei react icon se google ka icon import karange aur react-icon install karenge
 aur vo button me onclick laga kar on kar denje 
@@ -168,7 +170,9 @@ MISSING BUT IMPORTANT STEPS AND PACKAGES
    - `backend/`: `ioredis` for Redis client.
    - `backend/gateway/`: `express`, `dotenv`, `cors`, `cookie-parser`, `express-http-proxy`, `morgan`.
    - `backend/services/auth/`: `express`, `dotenv`, `mongoose`, `firebase`, `firebase-admin`.
-   - `frontend/vite-project/`: `axios`, `firebase`, `@reduxjs/toolkit`, `react-redux`, `react-icons`, `react`, `react-dom`, `vite`, `eslint`, `@vitejs/plugin-react`.
+   - `frontend/vite-project/`: `axios`, `firebase`, `@reduxjs/toolkit`, `react-redux`, `react-icons`, `react`, `react-dom`, `vite`, `eslint`, `@vitejs/plugin-react`, `tailwindcss`, `postcss`, `autoprefixer`.
+
+   Note: `backend/gateway/package.json` currently includes `@reduxjs/toolkit` and `react-redux`, but those are frontend state management libraries and do not belong in the backend proxy gateway.
 
 2. Important imports and exports actually used in code:
    - `gateway/index.js` imports `protect` from `./middlewares/auth.middleware.js` and `getCurrentuser` from `./controllers/user.controller.js`.
@@ -206,8 +210,37 @@ MISSING BUT IMPORTANT STEPS AND PACKAGES
    - Your README mentions Tailwind, but the current `package.json` does not include Tailwind packages. If you want Tailwind styling, install it explicitly.
    - The current frontend code already uses `react-redux` and `@reduxjs/toolkit`, so that setup is real and should be documented.
 
-These are the extra details you should keep in the README so it matches the actual current project setup.
+Additional implementation details to keep in the README:
 
+- A root `backend/package.json` exists and manages root-level backend dependencies. It includes `ioredis` and `init` for the backend environment.
+- `backend/docker-compose.yml` starts a Redis service on port `6379:6379` so both gateway and services can share the Redis instance.
+- `backend/shared/redis/redis.js` connects to Redis using `process.env.REDIS_URL` and logs successful connection status with `redis.on("connect", ...)`.
+- In `backend/gateway/index.js`, the gateway initializes `cookieParser()` and sets `cors` with `credentials: true`, which is necessary for browser session cookies to be sent through the proxy.
+- The gateway uses `proxyWithHeader()` and `express-http-proxy` to decorate proxied requests. When a session is authenticated, it adds the authenticated `userid` to proxied requests as `x-user-id`.
+- The gateway also serves `GET /me` locally using `backend/gateway/controllers/user.controller.js`, returning the parsed `req.user` from the auth middleware.
+- The backend storage is separated across auth, chat, and agent services, with each service using its own MongoDB settings in `.env`.
+- The auth user schema stores `firebaseUid`, `name`, `email`, and `avatar`, and uses Mongoose `timestamps` to record creation/update times.
+- The chat conversation schema stores `title` (default `New Chat`), `userId`, and `timestamps`.
+- The chat message schema stores `conversationId` as an ObjectId reference to `Conversation`, `role` as an enum of `user` or `assistant`, `content` as a string, and `timestamps`.
+- Auth sessions are stored in Redis under keys like `session-${sessionid}` and carry `{ userid, name, email, avatar }`. The session expires in 7 days.
+- The auth cookie is named `session` and is sent to the browser with `httpOnly: true`, `secure: false`, `sameSite: 'strict'`, and `maxAge: 24*60*60*1000*7`.
+- `backend/services/auth/config/firebase.js` initializes Firebase Admin with `serviceAccountKey.json` imported using `with { type: "json" }`.
+- The LangGraph agent router prompt in `backend/services/agent/graph/router.js` defines rules for `chat`, `search`, `coding`, `pdf`, `ppt`, and `vision` before selecting the correct agent.
+- The agent workflow in `backend/services/agent/graph/graph.js` is configured as:
+  - `__start__` -> `router`
+  - `router` conditionally -> `chat`, `search`, `coding`, `pdf`, `ppt`, or `vision`
+  - `search` -> `chat`
+  - all other nodes -> `_end_`
+- `backend/services/agent/config/llmmodel.js` maps `chat`/`search` to Groq `openai/gpt-oss-120b` and `coding` to Google Gemini `gemini-2.5-flash`.
+- `backend/services/agent/controller/agent.controller.js` forwards the user message to the chat service save-message endpoint before invoking the agent graph.
+- The frontend uses `import.meta.env.VITE_SERVER_URL` for gateway requests and `VITE_FIREBASE_API_KEY` for Firebase login popup actions.
+- `frontend/vite-project/src/utils/axios.js` creates an Axios client with `baseURL: import.meta.env.VITE_SERVER_URL` and `withCredentials: true` so cookies are included automatically.
+- `frontend/vite-project/src/redux/store.js` combines the `user` and `conversation` reducers.
+- `frontend/vite-project/src/redux/conversationslice.js` uses `unshift()` to insert new conversations at the start of the list.
+- `frontend/vite-project/src/App.jsx` calls `getcurrentuser()` in `useEffect()` and populates Redux state on refresh when the session cookie is valid.
+- `frontend/vite-project/src/components/sidebar.jsx` tracks `imageError` and renders a placeholder user icon if the Google avatar fails to load.
+
+These details should be documented so the README matches the actual implemented architecture.
 
 PHASE-1 ===> COMPLETED
 
@@ -304,25 +337,45 @@ ab coversation matlab chat history wala div banayenge aur agar chat mei kuch bhi
 
 ab logout button ko responsive banate hai ki click krne ab logout ho gaye feature me logout.js file bana kar
 
+ab ab hame chat area banayenge jisme user ka message aur agent ka message dono dikhaye jaaye aur user ka message right side aur agent ka message left side dikhaye jaaye aur user ke message ke niche time bhi dikhaye jaaye aur agent ke message ke niche time bhi dikhaye jaaye
 
+ab hame input area banayenge jisme user ka message likh sake aur send kar sake aur send karne ke baad message chat area mei dikhaye jaaye aur agent ka response bhi dikhaye jaaye is liye ham messagelist.jsx file banayrnge agar kuch bhi nahi hai toh cortexai ka logo and recommendationbhi dalenge  and navbar.jsx and chatinput.jsx file banayenge aur input area ke niche send button bhi dikhaye jaaye aur send karne ke baad message chat area mei dikhaye jaaye aur agent ka response bhi dikhaye jaaye
 
+navbar.jsx mei konsi conversation chalu hai aur icon dikhega uske baad conversation likhi hogi,aur phir dikhrge hamne kitne messages conversation mei hai aur ham phir state ko fetch karayenge aur jo chat selected hai vo dikhayenge
 
+now we will make a div in which we will show how many messages are this in this conversation toh ham messages ko getmesssage api ko called karenyenge toh features folder mei getmessages.js file banayenge
 
+ab in messages ko get karva ne baad hame unko redux mei messagesslice.js store karna hai jisse hame pata chale ki kitne messages hai aur kaunse message kaunse conversation mei hai toh ham redux folder mei messageslice.js file banayenge aur usme state banayenge aur uske ander messages ko store karenge aur update karenge aur call kar lenge chatarea ke andar
 
+ab navbar ke anandar hame ye dikhana hai ki kitne messages hai toh ham getmessages api ko call karenge toh unki length batani hai
+toh hame navbar.jsx ke anadr messsages ko get kar lenge ab css denje
 
+if we dont haave any conversation the we will not the navbar only the chat area will be there and if we have any conversation then we will show the navbar and chat area both
+ 
+abh ham messagelist wala part banayenge jisme hame user ka message aur agent ka message dono dikhaye jaaye aur user ka message right side aur agent ka message left side dikhaye jaaye aur user ke message ke niche time bhi dikhaye jaaye aur agent ke message ke niche time bhi dikhaye jaaye
 
+ even though we do not have any conversation or length of message ==0 then we will show the cortexai logo and recommendation in the chat area and if we have any conversation then we will show the messages in the chat area aur phir ,essahes ko map kara denje
 
+ ab ham messagebubble.jsx file banayenge jisme user ka message aur agent ka message dono dikhaye jaaye aur user ka message right side aur agent ka message left side dikhaye jaaye aur user ke message ke niche time bhi dikhaye jaaye aur agent ke message ke niche time bhi dikhaye jaaye aur role bhi alot kar denje
 
+ ab ham chatinput.jsx file banayenge jisme user ka message likh sake aur send kar sake aur send karne ke baad message chat area mei dikhaye jaaye aur agent ka response bhi dikhaye jaaye ab ek attachment icon aur mic icon banayenge and send ka button bhi banaynege
 
+ ab ham chatagent ke liye agent.controller.js mei ek api banayenge jisme user ka message aur conversationid bhejenge aur agent ka response milega aur uske baad hame uska message bhi save karna hai toh ham chat.controller.js mei save message api ko call karenge aur uske baad hame agent ka response milega toh usko bhi save kar denge aur phir frontend mei dikhaye jaaye
 
+ ab ham features folder mei sendmessage.js file banayenge jisme ham agent.route.js se/chat wali api layenge phir sendmessage ko chatinput mei layenge  ab hum handleendmessage api mei data fetch karenge aur await lagayege aur sendmessage ko call karayenge ab hume kya kya usme bhejna hai payload variable mei daalenge jaise ki prompt,conversationid jo selected wali hai ab hame ai wali message ko bhi save karna hai  
 
+ ab dikhat yeh hai ki hamne koi convesation selected hi nahi kiya tha toh hame aisa chaiye kki automatically nayi conversation create ho gaye aur usme message save ho jaaye aur agent ka response bhi save ho jaaye aur jo messagebubble hai use abhi ham banayenge ab hame messagebubble.jsx file banayenge jisme user ka message aur agent ka message dono dikhaye jaaye aur user ka message right side aur agent ka message left side dikhaye jaaye aur user ke message ke niche time bhi dikhaye jaaye aur agent ke message ke niche time bhi dikhaye jaaye aur role bhi alot kar denje
+ 
+ ab ham react markdown packages install karenge jisse hamne agent ka response ko markdown mei dikhaye jaaye aur ab hamne react markdown packages install karenge jisse hamne agent ka response ko markdown mei dikhaye jaaye aur code block bhi dikhaye jaaye aur code block ke liye syntax highlighting bhi ho jaaye aur code block ke liye copy button bhi ho jaaye aur code block ke liye line number bhi ho jaaye aur code block ke liye language bhi dikhaye jaaye aur code block ke liye theme bhi change ho jaaye aur code block ke liye dark mode bhi ho jaaye aur code block ke liye light mode bhi ho jaaye aur code block ke liye auto scroll bhi ho jaaye aur code block ke liye auto wrap bhi ho jaaye aur code block ke liye auto format bhi ho jaaye aur code block ke liye auto indent bhi ho jaaye aur code block ke liye auto lint bhi ho jaaye aur code block ke liye auto fix also ho jaaye
 
 
 
 
+ 
 
 
 
+ 
 
 
 
@@ -334,104 +387,6 @@ ab logout button ko responsive banate hai ki click krne ab logout ho gaye featur
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-installHook.js:1 Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
-1. You might have mismatching versions of React and the renderer (such as React DOM)
-2. You might be breaking the Rules of Hooks
-3. You might have more than one copy of React in the same app
-See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.
-overrideMethod	@	installHook.js:1
-
-react.development.js:1212 Uncaught TypeError: Cannot read properties of null (reading 'useContext')
-    at exports.useContext (react.development.js:1212:25)
-    at useLucideContext (context.mjs:33:7)
-    at Icon.mjs:24:9
-    at Object.react_stack_bottom_frame (react-dom-client.development.js:25904:20)
-    at renderWithHooks (react-dom-client.development.js:7662:22)
-    at updateForwardRef (react-dom-client.development.js:9724:19)
-    at beginWork (react-dom-client.development.js:12117:18)
-    at runWithFiberInDEV (react-dom-client.development.js:871:30)
-    at performUnitOfWork (react-dom-client.development.js:17641:22)
-    at workLoopSync (react-dom-client.development.js:17469:41)
-installHook.js:1 An error occurred in the <ForwardRef> component.
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
-﻿
-
-Press cmd i to turn on code suggestions. Press cmd x to disable code suggestions.
-cmd
-i
- to turn on code suggestions. Don't show again
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-installHook.js:1 Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
-1. You might have mismatching versions of React and the renderer (such as React DOM)
-2. You might be breaking the Rules of Hooks
-3. You might have more than one copy of React in the same app
-See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.
-
-installHook.js:1 Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
-1. You might have mismatching versions of React and the renderer (such as React DOM)
-2. You might be breaking the Rules of Hooks
-3. You might have more than one copy of React in the same app
-See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.
-react.development.js:1212 Uncaught TypeError: Cannot read properties of null (reading 'useContext')
-installHook.js:1 An error occurred in the <ForwardRef> component.
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
-﻿
 
 
 

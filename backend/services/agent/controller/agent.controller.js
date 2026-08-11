@@ -13,6 +13,11 @@ export const agent = async (req, res) => {
 
     const result = await graph.invoke({ prompt, conversationId })
     const aiResponse = result.aiResponse
+    await axios.post(`${process.env.CHAT_SERVICE}/save-message`, {
+      conversationId,
+      role: "assistant",
+      content: aiResponse,
+    })
 
     return res.status(200).json({ aiResponse })
   } catch (error) {
