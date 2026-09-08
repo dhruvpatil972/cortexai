@@ -1,8 +1,8 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
 import sendmessage from '../features/sendmessage'
-import markdown from 'markdown-to-jsx'
-import markdown from react-markdown 
+import Markdown from "react-markdown";
+
 function MessageBubble({ role, content }) {
   const isUser = role === 'user'
   return (
@@ -13,10 +13,10 @@ function MessageBubble({ role, content }) {
             ? "bg-linear-to-br from-indigo-500 to-violet-700 text-white rounded-tr-sm"
             : "bg-white/[0.04] border border-white/[0.07] text-slate-200 rounded-tl-sm"
         }`}>
-          <markdown>
+          <Markdown>
             {content}
 
-          </markdown>
+          </Markdown>
 
         
       </div>

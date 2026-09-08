@@ -6,8 +6,11 @@ const getcurrentuser = async () => {
         console.log("User data:", data)
         return data
     } catch (error) {
-        // This will print the exact message your backend sent back
         if (error.response) {
+            // 401 simply means no active session found on startup
+            if (error.response.status === 401) {
+                return null
+            }
             console.error("Backend Error Data:", error.response.data);
             console.error("Backend Status Code:", error.response.status);
             return null

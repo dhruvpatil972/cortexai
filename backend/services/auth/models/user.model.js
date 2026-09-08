@@ -1,4 +1,3 @@
-import { FileSpreadsheetIcon } from "lucide-react"
 import mongoose from "mongoose"
 
 const userSchema=new mongoose.Schema({         //schema 

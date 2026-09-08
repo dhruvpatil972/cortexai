@@ -15,8 +15,14 @@ function Sidebar({ collapsed, setCollapsed }) {
 
   useEffect(() => {
     const getconv = async () => {
-      const data = await getConversations()
-      dispatch(setConversations(data))
+      if (!userData?._id) return
+
+      try {
+        const data = await getConversations()
+        dispatch(setConversations(data || []))
+      } catch (error) {
+        // Ignore unauthorized requests before login is complete
+      }
     }
 
     getconv()

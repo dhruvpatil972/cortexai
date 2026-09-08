@@ -19,10 +19,10 @@ function Home() {
     const handlelogin = async (token) => {
         try {
             const { data } = await api.post('/auth/login', { token })
-            dispatch(setUserdata(data))
-            console.log(data)
+            dispatch(setUserdata(data.user || data))
+            console.log("Login successful:", data)
         } catch (error) {
-            console.log(error)
+            console.error("Login failed:", error.response?.data || error.message)
         }
     };
 

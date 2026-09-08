@@ -9,22 +9,24 @@ import { setUserdata } from './redux/userslice.js'
 
 
 function App() {
-  const dispatch=useDispatch()
-useEffect(() => {
-  const getuser=async ()=>{
-   const data =await getcurrentuser()
-   dispatch(setUserdata(data))
-  }
-  getuser()
+  const dispatch = useDispatch()
 
-},[])
+  useEffect(() => {
+    const getuser = async () => {
+      try {
+        const data = await getcurrentuser()
+        if (data) {
+          dispatch(setUserdata(data))
+        }
+      } catch (error) {
+        // Ignore unauthenticated startup state until login completes
+      }
+    }
 
+    getuser()
+  }, [dispatch])
 
-  return <> 
-    <Home/>
-    
-  </>;
-  
+  return <Home />
 }
 
 export default App
