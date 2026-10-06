@@ -9,6 +9,7 @@ function ChatInput() {
     const dispatch = useDispatch()
     const [input, setInput] = React.useState('')
 
+
     const handleSendMessage = async () => {
         const trimmedInput = input.trim()
 

@@ -1,6 +1,4 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
-import sendmessage from '../features/sendmessage'
 import Markdown from "react-markdown";
 
 function MessageBubble({ role, content }) {

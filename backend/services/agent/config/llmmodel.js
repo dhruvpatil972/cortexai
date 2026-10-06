@@ -6,7 +6,8 @@ const groq = new ChatGroq({
     apiKey: process.env.GROQ_API_KEY,
 })
 const gemini = new ChatGoogleGenerativeAI({
-    model: "gemini-2.5-flash"
+    model: "gemini-3.8-flash",
+    apiKey: process.env.GOOGLE_API_KEY,
 })
 
 export const getModel = async (agent) => {
