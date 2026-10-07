@@ -6,6 +6,7 @@ import logout from '../features/logout'
 import { addConversation, setConversations, setSelectedConversation } from '../redux/conversationslice'
 import { setUserdata } from '../redux/userslice'
 import { createConversation } from '../features/createconversation'
+import { setMessages } from '../redux/messagesslice'
 
 function Sidebar({ collapsed, setCollapsed }) {
   const [imageError, setImageError] = useState(false)
@@ -30,12 +31,21 @@ function Sidebar({ collapsed, setCollapsed }) {
 
   const handleCreateConversation = async () => {
     const data = await createConversation()
+    if (!data?._id) return
     dispatch(addConversation(data))
+    dispatch(setSelectedConversation(data))
+    dispatch(setMessages([]))
   }
 
   const handleLogout = async () => {
     await logout()
     dispatch(setUserdata(null))
+  }
+
+  const handleSelectConversation = (conv) => {
+    if (selectedConversation?._id === conv?._id) return
+    dispatch(setSelectedConversation(conv))
+    dispatch(setMessages([]))
   }
 
   const renderConversationItems = () =>
@@ -46,7 +56,7 @@ function Sidebar({ collapsed, setCollapsed }) {
         return (
           <div
             key={conv?._id ?? conv?.title ?? Math.random()}
-            onClick={() => dispatch(setSelectedConversation(conv))}
+            onClick={() => handleSelectConversation(conv)}
             className={`flex items-center justify-center cursor-pointer mb-1.5 w-9 h-9 rounded-xl border transition-colors duration-150 ${
               isActive
                 ? 'bg-indigo-500/10 border-indigo-500/[0.18] text-indigo-400'
@@ -61,7 +71,7 @@ function Sidebar({ collapsed, setCollapsed }) {
       return (
         <div
           key={conv?._id ?? conv?.title ?? Math.random()}
-          onClick={() => dispatch(setSelectedConversation(conv))}
+          onClick={() => handleSelectConversation(conv)}
           className={`flex items-center gap-2.5 cursor-pointer mb-0.5 px-3 py-2.5 rounded-[10px] border transition-colors duration-150 ${
             isActive ? 'bg-indigo-500/10 border-indigo-500/[0.18]' : 'bg-transparent border-transparent'
           }`}

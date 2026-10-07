@@ -368,6 +368,25 @@ abh ham messagelist wala part banayenge jisme hame user ka message aur agent ka 
  
  ab ham react markdown packages install karenge jisse hamne agent ka response ko markdown mei dikhaye jaaye aur ab hamne react markdown packages install karenge jisse hamne agent ka response ko markdown mei dikhaye jaaye aur code block bhi dikhaye jaaye aur code block ke liye syntax highlighting bhi ho jaaye aur code block ke liye copy button bhi ho jaaye aur code block ke liye line number bhi ho jaaye aur code block ke liye language bhi dikhaye jaaye aur code block ke liye theme bhi change ho jaaye aur code block ke liye dark mode bhi ho jaaye aur code block ke liye light mode bhi ho jaaye aur code block ke liye auto scroll bhi ho jaaye aur code block ke liye auto wrap bhi ho jaaye aur code block ke liye auto format bhi ho jaaye aur code block ke liye auto indent bhi ho jaaye aur code block ke liye auto lint bhi ho jaaye aur code block ke liye auto fix also ho jaaye
 
+ ab ham cortexai ko memory provide karenge jo hamne usse upar baate ki hai vo usse yaad rahe in redis 
+
+ toh like ab sabse pehle hame jo conversation kiye hai vo hame get karane hai using jo get-messages karke route hai usse jo conversationID hai vo chat ki aur in messages ko redis ke andar store karenje using conversationid se ham get messages karke saare history llm ko de denje aur vo uskar dekh kar hi response dega naye messages ka  jo hamne utils folder mei rakhe hai 
+
+ toh ab ham memory.js mei conversationid ka use karenge aur yeh pehle dekhenge ki kya vo conversation ki key ya koi data pehle se redis mei hai agar nahi toh redis mei add karenge 
+
+ toh ab hum redis mei key banayenge jiiska use karke ham data store karemge vo bhi dynamic wali. toh ham iss key ka use karke messages dalenge aur agar max 20 message store honge aur agr 1 napa message aaya toh purane wale delete karte rahenge
+
+ab ha, yeh getmessage vo use karenge chat agent ke andar use history use kakre llm ko denje aur vo rsponse dega ab yeh hoi gaya
+
+
+ab ham kya karenge ki jaise hi ham like aataa hai toh koi chat/conversation select nahi hoti toh ham kya karenge ki jaise hi hamne kuch type kiya as a prompt aur hamne jaise hi usko bheja toh apne aap ek nayi chat form ho jayegi aur vo prompt usme chala jayega \
+
+
+ab hum kya karenge ki ham chat conversation ko title denje meam jo sidebar mei jo new chat hai uski jagah title denje. jo ham karenge using udate-conversaton route se 
+
+
+
+
 
 
 

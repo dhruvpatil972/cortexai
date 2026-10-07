@@ -1,5 +1,6 @@
 import axios from "axios"
 import { graph } from "../graph/graph.js"
+import { addmessages } from "../config/memory.js"
 
 export const agent = async (req, res) => {
   try {
@@ -13,6 +14,8 @@ export const agent = async (req, res) => {
 
     const result = await graph.invoke({ prompt, conversationId })
     const aiResponse = result.aiResponse
+    await addmessages(conversationId, "user", prompt)
+    await addmessages(conversationId, "assistant", aiResponse)  
     await axios.post(`${process.env.CHAT_SERVICE}/save-message`, {
       conversationId,
       role: "assistant",
