@@ -384,6 +384,28 @@ ab ham kya karenge ki jaise hi ham like aataa hai toh koi chat/conversation sele
 
 ab hum kya karenge ki ham chat conversation ko title denje meam jo sidebar mei jo new chat hai uski jagah title denje. jo ham karenge using udate-conversaton route se 
 
+ab hamare paas real time data nahi hai aur internet se data search karne wala agent banaya hai search agent . toh ab ham kya karenge ki ham saare agent to input area mei at the top unka option lga denge aur ham choose kar sakte hai unke role ke hisaab se par agar hame select na karna ho toh vo automatically apne aap router ke paas jo llm hai usse assign karke bhi ham unka use kar sakte hai 
+
+toh ham agent ko map kar lete hai input mei aur search agent banate hai toh pehle input mei saare agent ko map karate hai 
+
+
+ab hamare paas real time data nahi hai aur internet se data search karne wala agent banaya hai search agent . toh ab ham kya karenge ki ham saare agent to input area mei at the top unka option lga denge aur ham choose kar sakte hai unke role ke hisaab se par agar hame select na karna ho toh vo automatically apne aap router ke paas jo llm hai usse assign karke bhi ham unka use kar sakte hai  ab ham isko implement karenge 
+
+
+
+ab yeh bhi ho gya ab ham search agent banayenge aur ek aur important thing ki search agent apna imput le kar chat agent ke paas jayega auf phir hame milega aur we will use taviley for searching
+
+ab ham graph me state mei ek state anayenge jissme hum search ki infomaation rakhenge kyuki hame usse chat ko dena hai 
+
+aur abhi tak hamne response ke sath jo search agent image bhi bhejta hai hamne unko bhi store karaya hai aur vo abhi console mei dikhte hai as a link 
+
+toh abhi hamara search agent with its response and image we are getting but image in form of link at console
+
+toh ab hame vohi link wali images ko in form of real image withe the resposne dena hai 
+
+ab ham ui ko enhanced karenge
+
+
 
 
 

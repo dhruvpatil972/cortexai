@@ -39,7 +39,7 @@ function Home() {
     }
 
     return (
-        <div className='h-screen flex bg-black text-amber-50 overflow-hidden'>
+        <div className='h-screen  flex bg-black text-amber-50 overflow-hidden'>
 
             <SideBar collapsed={collapsed} setCollapsed={setCollapsed} />
             <div className='flex-1 min-w-0 flex overflow-hidden bg-[#090a0f] transition-all duration-150'>

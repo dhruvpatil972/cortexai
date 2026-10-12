@@ -1,4 +1,4 @@
-import api from "../../utils/axios"
+import api from "../../utils/axios.js"
 
 export const getConversations = async () => {
     try {

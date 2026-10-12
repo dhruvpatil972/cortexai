@@ -1,6 +1,14 @@
 import { getModel } from "../config/llmmodel.js"
 
 export const router = async (state) => {
+
+    if (state.agent && state.agent !== "auto") {
+        const agentName = state.agent.toLowerCase().trim()
+        return {
+            ...state,
+            agent: agentName === "image" ? "vision" : agentName
+        }
+    }
     const llm = await getModel("router")
     const prompt = `You are an agent router
     
@@ -67,5 +75,4 @@ ${state.prompt}
         .toLowerCase()
 
     }
-
 } 

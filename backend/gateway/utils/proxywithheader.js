@@ -6,6 +6,7 @@ export const proxyWithHeader = (serviceUrl) => {
     }
 
     return proxy(serviceUrl, {
+        timeout: 60000,
         proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
             if (srcReq.user) {
                 proxyReqOpts.headers['x-user-id'] = srcReq.user.userid

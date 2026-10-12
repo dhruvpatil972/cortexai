@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import getMessages from '../features/getMessages'
 import { setMessages } from '../redux/messagesslice.js'
 
+
 function chatarea() {
   const { selectedConversation } = useSelector((state) => state.conversation)
   const dispatch = useDispatch()
@@ -25,7 +26,7 @@ function chatarea() {
   }, [selectedConversation?._id, dispatch])
 
   return (
-    <div className='flex-1 flex flex-col'>
+    <div className='flex-1 flex flex-col min-w-0'>
       <Navbar />
       <Messagelist />
       <Chatinput />
